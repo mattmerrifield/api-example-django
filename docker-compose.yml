@@ -3,10 +3,13 @@ services:
   db:
     container_name: db-drchrono
     image: mysql
+    environment:
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=True"
     ports:
       - "3306:3306"
     volumes:
       - "./docker/data:/docker-entrypoint-initdb.d"
+    working_dir: "/docker-entrypoint-initdb.d"
 
   drchrono:
     container_name: drchrono
