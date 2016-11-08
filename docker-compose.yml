@@ -1,0 +1,23 @@
+version: '2'
+services: 
+  db:
+    container_name: db
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./docker/data:/docker-entrypoint-initdb.d"
+
+  drchrono:
+    container_name: drchrono
+    image: drchrono
+    ports:
+      - "8080:8080"
+    command: /bin/bash -c "while true; do echo mark; sleep 2; done"
+#    command: "ls -l . "# python ./manage.py runserver 0.0.0.0:8080"
+    volumes:
+      - ".:/usr/src/app"
+    working_dir: /usr/src/app
+    build:
+      context: .
+      dockerfile: ./docker/drchrono-dockerfile
