@@ -8,8 +8,7 @@ class PatientAdmin(admin.ModelAdmin):
 
 
 class AppointmentAdmin(admin.ModelAdmin):
-    pass  # bone stock for now
-
+    list_display = ['user', 'status', 'time_scheduled', 'time_checked_in', 'time_waiting']
 
 admin.site.register(Patient, PatientAdmin)
 admin.site.register(Appointment, AppointmentAdmin)

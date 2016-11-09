@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 from localflavor.us.forms import USSocialSecurityNumberField
 
 
@@ -25,3 +26,20 @@ class Appointment(models.Model):
     time_checked_in = models.DateTimeField(null=True)
     time_seen = models.DateTimeField(null=True)
     notes = models.TextField(default="")
+
+    @property
+    def time_waiting(self):
+        """
+        Return the time spent waiting for patients who have checked in.
+
+        Return None for patients who haven't checked in.
+        :return:
+        """
+        # assumes time_seen is either never in the future, or perfectly prophetic of how long a person *will* have
+        # been waiting.
+        if not self.time_checked_in:
+            return None
+        elif self.time_seen:
+            return self.time_seen - self.time_checked_in
+        else:
+            return now() - self.time_checked_in
