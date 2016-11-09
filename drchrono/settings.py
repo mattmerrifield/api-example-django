@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'drchrono',
     'social.apps.django_app.default',
+    'localflavor'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -89,7 +90,7 @@ DATABASES = {
         'NAME': 'drchrono',
         'USER': 'root',
         'PASSWORD': '',
-        'HOST': 'db-drchrono',   # Or an IP Address that your DB is hosted on
+        'HOST': 'db',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }

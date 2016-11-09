@@ -1,7 +1,7 @@
 version: '2'
-services: 
+services:
   db:
-    container_name: db-drchrono
+    container_name: db
     image: mysql
     environment:
       - "MYSQL_ALLOW_EMPTY_PASSWORD=True"
@@ -21,6 +21,8 @@ services:
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
+    depends_on:
+      - "db"
     build:
       context: .
       dockerfile: ./docker/drchrono-dockerfile
