@@ -39,7 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'drchrono',
     'social.apps.django_app.default',
-    'localflavor'
+    'localflavor',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,5 +119,7 @@ STATIC_URL = '/static/'
 # Drchrono oauth tokens
 SOCIAL_AUTH_DRCHRONO_KEY = os.getenv('SOCIAL_AUTH_DRCHRONO_KEY')
 SOCIAL_AUTH_DRCHRONO_SECRET = os.getenv('SOCIAL_AUTH_DRCHRONO_SECRET')
-LOGIN_REDIRECT_URL = '/admin'
+LOGIN_REDIRECT_URL = '/welcome'
 LOGIN_URL = 'login/drchrono'
+
+SHELL_PLUS = "ipython"
