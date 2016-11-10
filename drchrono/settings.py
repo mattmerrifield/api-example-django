@@ -112,5 +112,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
 STATIC_URL = '/static/'
+
+
+# Drchrono oauth tokens
+SOCIAL_AUTH_DRCHRONO_KEY = os.getenv('SOCIAL_AUTH_DRCHRONO_KEY')
+SOCIAL_AUTH_DRCHRONO_SECRET = os.getenv('SOCIAL_AUTH_DRCHRONO_SECRET')
+LOGIN_REDIRECT_URL = '/admin'
+LOGIN_URL = 'login/drchrono'

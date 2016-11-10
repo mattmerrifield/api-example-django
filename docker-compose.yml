@@ -14,6 +14,8 @@ services:
   drchrono:
     container_name: drchrono
     image: drchrono
+    env_file:
+      - "docker/environment"
     ports:
       - "8080:8080"
 #    command: /bin/bash -c "while true; do echo mark; sleep 2; done"
