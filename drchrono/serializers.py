@@ -19,7 +19,7 @@ class LimitedModelSerializer(ModelSerializer):
         return internal_data
 
 
-class PatientSerialier(LimitedModelSerializer):
+class PatientSerializer(LimitedModelSerializer):
     class Meta:
         model = Patient
         fields = ('id', 'first_name', 'last_name', 'date_of_birth')

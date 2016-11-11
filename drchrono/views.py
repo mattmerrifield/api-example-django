@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.views import generic
+from django.views.generic import TemplateView
 
 from drchrono.endpoints import PatientEndpoint
 
@@ -13,9 +14,9 @@ def doctor_view(request, *args, **kwargs):
 class PatientCheckin(generic.FormView):
     def form_valid(self, form):
         # 1) Try to retrieve the patient id from the cache by first/last/DOB/social
-        # 2) 
+        # 2)
 
-        PatientResource.get()
+        PatientEndpoint.get()
 
 
 class DoctorWelcome(TemplateView):

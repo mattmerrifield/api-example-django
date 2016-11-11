@@ -12,6 +12,6 @@ urlpatterns = [
     url(r'admin', include(admin.site.urls)),
     url(r'', include('social.apps.django_app.urls', namespace='social')),
     url(r'^today$', views.doctor_view, name='today'),
-    url(r'^checkin$', views.checkin_view, name='checkin'),
+    url(r'^checkin$', views.PatientCheckin.as_view(), name='checkin'),
     url(r'^welcome$', login_required(views.DoctorWelcome.as_view()), name='welcome'),
 ]

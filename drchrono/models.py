@@ -10,13 +10,10 @@ from localflavor.us.models import USSocialSecurityNumberField
 class Patient(models.Model):
     # These values are never edited locally; only in response to information from the server
     # We cache the minimum number of fields to provide useful info to the doctor.
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField()
-    social_security_number = USSocialSecurityNumberField()
-
-    # We store the last time we did a refresh from the API, so we can decide when to do another one.
-    # refresh_time = models.DateTimeField()
+    first_name = models.CharField(editable=False, max_length=255, null=True)
+    last_name = models.CharField(editable=False, max_length=255, null=True)
+    date_of_birth = models.DateField(editable=False, null=True)
+    social_security_number = USSocialSecurityNumberField(editable=False, null=True)
 
     def __str__(self):
         return "{self.first_name} {self.last_name}".format(self=self)
@@ -25,7 +22,6 @@ class Patient(models.Model):
 class Doctor(models.Model):
     # These values are never edited locally; only in response to information from the server
     # We cache the minimum number of fields to provide useful info to the doctor.
-    id = models.IntegerField(editable=False)
     first_name = models.CharField(max_length=255, editable=False)
     last_name = models.CharField(max_length=255, editable=False)
 
@@ -36,8 +32,8 @@ class Appointment(models.Model):
     """
     # These values are never changed locally; only in response to information from the server
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, editable=False, null=True)  # Breaks have a null patient field
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, editable=False)
-    status = models.CharField(max_length=255, editable=False)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, editable=False)  # Must have a doctor
+    status = models.CharField(max_length=255, editable=False, null=True)
     scheduled_time = models.DateTimeField(default=now, editable=False)
     duration = models.IntegerField(editable=False)
 
