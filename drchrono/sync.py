@@ -6,12 +6,12 @@ from drchrono.models import Doctor, Appointment, Patient
 from drchrono.serializers import DoctorSerializer, AppointmentSerializer, PatientSerializer
 
 
+# Written the same way a Celery task would be, as a class with a run() method.
+# this is the kind of thing we could schedule and asynchronously execute, with Celery, or threading, or multiprocessing.
 class ModelSync(object):
     """
     Syncs all data from API -> Model using a Serializer.
     """
-    # Written in a Java-thread kinda way, in case we want to go that route.
-    # however, threads on python are kind of terrible, so I'd rather not.
     endpoint = None
     serializer = None
     model = None
