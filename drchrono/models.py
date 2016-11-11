@@ -74,6 +74,7 @@ class Appointment(models.Model):
 
     def check_in(self):
         self.status = 'Waiting'
+        self.checkin_time = now()
         self.seen_time = None
         self.save()
 

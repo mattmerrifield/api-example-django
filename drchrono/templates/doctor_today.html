@@ -17,7 +17,13 @@
         <tr><td>{{ appointment.scheduled_time }}</td>
             <td>{{ appointment.duration }} minutes</td>
             <td>{{ appointment.status }}</td>
-            <td>{{ appointment.time_waiting }}</td>
+            <td>
+                {% if appointment.checkin_time %}
+                    {{ current_time|timesince:appointment.checkin_time }}
+                {% else %}
+                    {# Nothing #}
+                {% endif %}
+            </td>
             <td>{{ appointment.patient }}</td>
             <td>{{ appointment.patient.date_of_birth }}</td>
             <td>

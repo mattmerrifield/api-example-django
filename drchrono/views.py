@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.shortcuts import redirect, render_to_response
+from django.utils.timezone import now
 from django.views import generic
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
@@ -53,7 +54,8 @@ class PatientConfirmAppointment(generic.FormView):
         api_data = endpoint.fetch(id=appointment.id)
         serializer = AppointmentSerializer(data=api_data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save()  # Save updates from API
+            serializer.instance.check_in()  # Set checkin time and status
             return redirect('confirm_info', patient=form.patient)
         else:
             # TODO: set up logging framework properly
@@ -84,6 +86,11 @@ class DoctorToday(ListView):
     template_name = 'doctor_today.html'
     queryset = Appointment.objects.today()
 
+    def get_context_data(self, **kwargs):
+        kwargs = super(DoctorToday, self).get_context_data(**kwargs)
+        kwargs['current_time'] = now()
+        return kwargs
+
 
 class CheckinFailed(TemplateView):
     template_name = 'checkin_receptionist.html'
@@ -100,7 +107,7 @@ class StartConsult(TemplateView):
         # Update both API and local cache
         endpoint = AppointmentEndpoint()
         endpoint.update(id, {'status': status})
-        Appointment.objects.filter(id=id).update(status=status)
+        Appointment.objects.get(id=id).start_consult()
         return response
 
 
@@ -115,5 +122,5 @@ class FinishConsult(TemplateView):
         # Update both API and local cache
         endpoint = AppointmentEndpoint()
         endpoint.update(id, {'status': status})
-        Appointment.objects.filter(id=id).update(status=status)
+        Appointment.objects.get(id=id).finish_consut()
         return response
