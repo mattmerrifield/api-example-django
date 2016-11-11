@@ -52,6 +52,11 @@ class Appointment(models.Model):
         if self.checkin_time and not self.seen_time and self.status == 'Arrived':
             self.time_waiting = now() - self.checkin_time
 
+    def __str__(self):
+        patient = self.patient or "Break"
+        return "{self.doctor}: {patient} at {self.scheduled_time} for {self.duration} minutes".format(
+            self=self, patient=patient)
+
     def save(self, *args, **kwargs):
         """
         Return the time spent waiting for patients who have checked in.

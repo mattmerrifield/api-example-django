@@ -125,7 +125,7 @@ class BaseEndpoint(object):
         response = requests.post(url, data=data, json=json, **kwargs)
         return self._json_or_exception(response)
 
-    def update(self, id, data, partial=False, **kwargs):
+    def update(self, id, data, partial=True, **kwargs):
         """
         Updates an object. Returns None.
 
