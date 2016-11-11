@@ -38,6 +38,7 @@ class PatientConfirmInfo(generic.FormView):
     """
     Use the API to update demographic info about the patient
     """
+    form = PatientInfoForm
     def get_form_kwargs(self):
         api_data = PatientEndpoint().fetch(id=self.request.GET['id'])
         return {'initial': api_data}

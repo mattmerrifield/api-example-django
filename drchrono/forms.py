@@ -1,8 +1,8 @@
 from django import forms
 from django.utils.timezone import now
-from localflavor.us.forms import USSocialSecurityNumberField
+from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField
 
-from drchrono.models import Patient, Appointment
+from drchrono.models import Patient, Appointment, Doctor
 
 
 class PatientWhoamiForm(forms.Form):
@@ -10,6 +10,23 @@ class PatientWhoamiForm(forms.Form):
     last_name = forms.CharField()
     date_of_birth = forms.DateField()
     social_security_number = USSocialSecurityNumberField(required=False)
+
+
+class PatientInfoForm(forms.Form):
+    # This set of fields needs way more validation and care than I'm currently giving it
+    # We're going to feed these results directly to the API; we should make sure the API won't choke on what we give it
+    first_name = forms.CharField()
+    middle_name = forms.CharField()
+    gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    last_name = forms.CharField()
+    date_of_birth = forms.DateField(required=False)
+    social_security_number = USSocialSecurityNumberField(required=False)
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all())
+    address = forms.CharField(required=False)
+    city = forms.CharField(required=False)
+    cell_phone = USPhoneNumberField(required=False)
+    # TODO:
+    # custom demographics fields are dynamically constructed; this is tricky with django forms
 
 
 class AppointmentChoiceForm(forms.Form):
