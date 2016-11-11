@@ -124,3 +124,23 @@ LOGIN_REDIRECT_URL = '/welcome'
 LOGIN_URL = 'login/drchrono'
 
 SHELL_PLUS = "ipython"
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'drchrono.endpoints.*': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

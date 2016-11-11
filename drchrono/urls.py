@@ -10,9 +10,9 @@ import views
 urlpatterns = [
     url(r'^setup/$', TemplateView.as_view(template_name='kiosk_setup.html'), name='home'),
     url(r'^admin', include(admin.site.urls)),
-    url(r'^check-in/$', views.PatientCheckin.as_view(), name='checkin'),
+    url(r'^check-in/$', views.PatientCheckin.as_view(), name='check-in'),
     url(r'^check-in/patient-info/$', views.PatientConfirmInfo.as_view(), name='confirm_info'),
-    url(r'^check-in/appointments/$', views.PatientConfirmAppointment.as_view(), name='confirm_appointment'),
+    url(r'^check-in/(?P<patient>\d+)/appointments/$', views.PatientConfirmAppointment.as_view(), name='confirm_appointment'),
     url(r'^check-in/confirmed$', views.AppointmentConfirmed.as_view(), name='checkin_success'),
     url(r'^check-in/receptionist', views.CheckinFailed.as_view(), name='checkin_receptionist'),
     url(r'^doctor/welcome/$', login_required(views.DoctorWelcome.as_view()), name='welcome'),

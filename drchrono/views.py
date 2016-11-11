@@ -31,7 +31,7 @@ class PatientCheckin(generic.FormView):
             patient = matches.first().patient
             return redirect('confirm_appointment', patient=patient.id)
         else:
-            return redirect('checkin_failed')  # "No appointments found, please see the receptionist
+            return redirect('checkin_receptionist')  # "No appointments found, please see the receptionist
 
 
 class PatientConfirmAppointment(generic.FormView):
@@ -44,7 +44,7 @@ class PatientConfirmAppointment(generic.FormView):
         # first/last/DOB as authentication credentials; that would prevent at least bored programmers from messing with
         # it, even if that wouldn't secure it against the russians.
         return {
-            'patient': self.request.GET.get('patient'),
+            'patient': self.kwargs['patient'],
             'start': self.request.GET.get('start'),
             'end': self.request.GET.get('end'),
         }

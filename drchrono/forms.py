@@ -34,9 +34,10 @@ class AppointmentChoiceForm(forms.Form):
 
     def __init__(self, patient=None, start=None, end=None, **kwargs):
         super(AppointmentChoiceForm, self).__init__(**kwargs)
+        self.patient = patient  # Template breaks if patient=None
         if patient:
-            self.appointment.queryset = self.appointment.queryset.filter(patient=patient)
+            self.fields['appointment'].queryset = self.fields['appointment'].queryset.filter(patient=patient)
         if start:
-            self.appointment.queryset = self.appointment.queryset.filter(scheduled_time__gte=start)
+            self.fields['appointment'].queryset = self.fields['appointment'].queryset.filter(scheduled_time__gte=start)
         if end:
-            self.appointment.queryset = self.appointment.queryset.filter(scheduled_time__lte=end)
+            self.fields['appointment'].queryset = self.fields['appointment'].queryset.filter(scheduled_time__lte=end)

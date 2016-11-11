@@ -1,5 +1,6 @@
 import requests
 from social.apps.django_app.default.models import UserSocialAuth
+import logging
 
 
 class APIException(Exception): pass
@@ -47,10 +48,15 @@ class BaseEndpoint(object):
         self.oauth_provider = UserSocialAuth.objects.get(provider='drchrono')
         self.access_token = self.oauth_provider.extra_data['access_token']
 
+    @property
+    def logger(self):
+        name = "{}.{}".format(__name__, self.endpoint)
+        return logging.getLogger(name)
+
     def _url(self, id=""):
         if id:
             id = "/{}".format(id)
-        return "{}{}".format(self.BASE_URL, self.endpoint, id)
+        return "{}{}{}".format(self.BASE_URL, self.endpoint, id)
 
     def _auth_headers(self, kwargs):
         """
@@ -69,7 +75,8 @@ class BaseEndpoint(object):
         returns the JSON content or raises an exception, based on what kind of response (2XX/4XX) we get
         """
         if response.ok:
-            return response.json()
+            if response.status_code != 204: # No Content
+                return response.json()
         else:
             exe = ERROR_CODES.get(response.status_code, APIException)
             raise exe(response.content)
@@ -85,11 +92,13 @@ class BaseEndpoint(object):
         Returns an iterator to retrieve all objects at the specified resource. Waits to exhaust the current page before
         retrieving the next, which might result in choppy responses.
         """
+        self.logger.debug("list()")
         url = self._url()
         self._auth_headers(kwargs)
         # Response will be one page out of a paginated results list
         response = requests.get(url, params=params, **kwargs)
         if response.ok:
+            self.logger.debug("list got page {}".format('url'))
             while url:
                 data = response.json()
                 url = data['next']  # Same as the resource URL, but with the page query parameter present
@@ -97,7 +106,9 @@ class BaseEndpoint(object):
                     yield result
         else:
             exe = ERROR_CODES.get(response.status_code, APIException)
+            self.logger.debug("list exception {}".format(exe))
             raise exe(response.content)
+        self.logger.debug("list() complete")
 
     def fetch(self, id, params=None, **kwargs):
         """
@@ -106,6 +117,7 @@ class BaseEndpoint(object):
         url = self._url(id)
         self._auth_headers(kwargs)
         response = requests.get(url, params=params, **kwargs)
+        self.logger.info("fetch {}".format(response.status_code))
         return self._json_or_exception(response)
 
     def create(self, data=None, json=None, **kwargs):
@@ -192,6 +204,15 @@ class AppointmentEndpoint(BaseEndpoint):
 
 class DoctorEndpoint(BaseEndpoint):
     endpoint = "doctors"
+
+    def update(self, id, data, partial=True, **kwargs):
+        raise NotImplementedError("the API does not allow updating doctors")
+
+    def create(self, data=None, json=None, **kwargs):
+        raise NotImplementedError("the API does not allow creating doctors")
+
+    def delete(self, id, **kwargs):
+        raise NotImplementedError("the API does not allow deleteing doctors")
 
 
 class AppointmentProfileEndpoint(BaseEndpoint):
