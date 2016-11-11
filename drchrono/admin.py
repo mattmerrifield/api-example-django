@@ -4,7 +4,7 @@ from drchrono.models import Patient, Appointment, Doctor
 
 
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ['id', 'first_name', 'last_name', 'date_of_birth']
+    list_display = ['id', 'first_name', 'last_name', 'date_of_birth', 'social_security_number']
 
 
 class DoctorAdmin(admin.ModelAdmin):

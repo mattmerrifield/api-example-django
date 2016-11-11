@@ -120,7 +120,7 @@ STATIC_URL = '/static/'
 # Drchrono oauth tokens
 SOCIAL_AUTH_DRCHRONO_KEY = os.getenv('SOCIAL_AUTH_DRCHRONO_KEY')
 SOCIAL_AUTH_DRCHRONO_SECRET = os.getenv('SOCIAL_AUTH_DRCHRONO_SECRET')
-LOGIN_REDIRECT_URL = 'today/'
+LOGIN_REDIRECT_URL = '/today/'
 LOGIN_URL = 'login/drchrono'
 
 SHELL_PLUS = "ipython"

@@ -2,15 +2,15 @@
 {% block title %}Welcome to Chrono Kiosk!{% endblock %}
 {% block extra_header %}<meta http-equiv="refresh" content="5" >{% endblock %}
 {% block body %}
-    <p>Welcome {{ request.user }}!</p>
-    <p>Here are your appointments for today:</p>
-    <table>
+    <h1>Today's Appointments:</h1>
+    <table class="table">
     <tr>
         <th>Scheduled Time</th>
         <th>Duration</th>
         <th>Status</th>
         <th>Patient</th>
         <th>DOB</th>
+        <th>Action</th>
     </tr>
     {% for appointment in object_list %}
         <tr><td>{{ appointment.scheduled_time }}</td>
@@ -18,8 +18,10 @@
             <td>{{ appointment.status }}</td>
             <td>{{ appointment.patient }}</td>
             <td>{{ appointment.patient.date_of_birth }}</td>
-            <td><a href="{% url 'start_consult' appointment=appointment.id %}">Start Consult</a></td>
-            <td><a href="{% url 'finish_consult' appointment=appointment.id %}">Finish Consult</a></td>
+            <td>
+                <a class="btn btn-default" href="{% url 'start_consult' appointment=appointment.id %}">Start Consult</a>
+                <a class="btn btn-default" href="{% url 'finish_consult' appointment=appointment.id %}">Finish Consult</a>
+            </td>
         </tr>
     {% empty %}
         <li>No appointments today.</li>

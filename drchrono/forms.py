@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import widgets
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField
 
 from drchrono.models import Patient, Appointment, Doctor
@@ -7,7 +8,7 @@ from drchrono.models import Patient, Appointment, Doctor
 class PatientWhoamiForm(forms.Form):
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
-    date_of_birth = forms.DateField(required=False)
+    date_of_birth = forms.DateField(required=False, widget=widgets.DateInput)
     social_security_number = USSocialSecurityNumberField(required=False)
 
     def get_patient(self):
@@ -52,9 +53,13 @@ class PatientInfoForm(forms.Form):
 
 
 class AppointmentChoiceForm(forms.Form):
-    appointment = forms.ModelChoiceField(queryset=Appointment.objects.all())
+    appointment = forms.ModelChoiceField(
+        queryset=Appointment.objects.all(),
+        widget=widgets.RadioSelect,
+        empty_label=None,
+    )
 
-    def __init__(self, queryset=Appointment.objects.all(), patient='', **kwargs):
+    def __init__(self, patient='', **kwargs):
         super(AppointmentChoiceForm, self).__init__(**kwargs)
         self.patient = patient
         self.fields['appointment'].queryset = Appointment.objects.today().filter(patient=self.patient)

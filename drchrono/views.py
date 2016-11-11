@@ -40,7 +40,6 @@ class PatientConfirmAppointment(generic.FormView):
         old_kwargs = super(PatientConfirmAppointment, self).get_form_kwargs()
         patient_id = self.kwargs['patient']
         old_kwargs.update({
-            'queryset': Appointment.objects.today().filter(patient=patient_id),
             'patient': patient_id,
         })
         return old_kwargs

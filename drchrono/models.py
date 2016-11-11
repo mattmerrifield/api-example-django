@@ -27,7 +27,7 @@ class Doctor(models.Model):
     last_name = models.CharField(max_length=255, editable=False)
 
     def __str__(self):
-        return "Dr. {self.first_name} {self.last_name}".format(self=self)
+        return "Dr. {self.last_name}".format(self=self)
 
 
 class AppointmentManager(models.Manager):
@@ -69,7 +69,7 @@ class Appointment(models.Model):
 
     def __str__(self):
         patient = self.patient or "Break"
-        return "{self.doctor}: {patient} at {self.scheduled_time} for {self.duration} minutes".format(
+        return "{self.scheduled_time} {patient} with {self.doctor} for {self.duration} minutes".format(
             self=self, patient=patient)
 
     def save(self, *args, **kwargs):
