@@ -21,7 +21,7 @@ ERROR_CODES = {
 }
 
 
-class BaseChronoResource(object):
+class BaseEndpoint(object):
     """
     A python wrapper for the basic rules of the drchrono API.
 
@@ -66,9 +66,12 @@ class BaseChronoResource(object):
 
         })
 
-    def _content_or_exception(self, response):
+    def _json_or_exception(self, response):
+        """
+        returns the JSON content or raises an exception, based on what kind of response (2XX/4XX) we get
+        """
         if response.ok:
-            return response.content
+            return response.json()
         else:
             exe = ERROR_CODES.get(response.status_code, APIException)
             raise exe(response.content)
@@ -98,15 +101,14 @@ class BaseChronoResource(object):
             exe = ERROR_CODES.get(response.status_code, APIException)
             raise exe(response.content)
 
-
-    def get(self, id, params=None, **kwargs):
+    def fetch(self, id, params=None, **kwargs):
         """
         Retrieve a specific object by ID
         """
         url = self._url(id)
         self._auth_headers(kwargs)
         response = requests.get(url, params=params, **kwargs)
-        return self._content_or_exception(response)
+        return self._json_or_exception(response)
 
     def create(self, data=None, json=None, **kwargs):
         """
@@ -120,10 +122,10 @@ class BaseChronoResource(object):
            - 403 (Forbidden)
            - 409 (Conflict)
         """
-        url = self._url(id)
+        url = self._url()
         self._auth_headers(kwargs)
         response = requests.post(url, data=data, json=json, **kwargs)
-        return self._content_or_exception(response)
+        return self._json_or_exception(response)
 
     def update(self, id, data, partial=False, **kwargs):
         """
@@ -147,7 +149,7 @@ class BaseChronoResource(object):
             response = requests.patch(url, data, **kwargs)
         else:
             response = requests.put(url, data, **kwargs)
-        return self._content_or_exception(response)
+        return self._json_or_exception(response)
 
     def delete(self, id, **kwargs):
         """
@@ -163,14 +165,14 @@ class BaseChronoResource(object):
         url = self._url(id)
         self._auth_headers(kwargs)
         response = requests.delete(url)
-        return self._content_or_exception(response)
+        return self._json_or_exception(response)
 
 
-class PatientResource(BaseChronoResource):
+class PatientEndpoint(BaseEndpoint):
     endpoint = "patients"
 
 
-class AppointmentResource(BaseChronoResource):
+class AppointmentEndpoint(BaseEndpoint):
     endpoint = "appointments"
 
     # Special parameter requirements for a given resource should be explicity called out
@@ -178,6 +180,7 @@ class AppointmentResource(BaseChronoResource):
         """
         List appointments on a given date, or between two dates
         """
+        # Just parameter parsing/checking
         params = params or {}
         if start and end:
             date_range = "{}/{}".format(start, end)
@@ -186,12 +189,12 @@ class AppointmentResource(BaseChronoResource):
             params['date'] = date
         if 'date' not in params and 'date_range' not in params:
             raise Exception("Must provide either start & end, or date argument")
-        return super(AppointmentResource, self).list(params, **kwargs)
+        return super(AppointmentEndpoint, self).list(params, **kwargs)
 
 
-class DoctorResource(BaseChronoResource):
+class DoctorEndpoint(BaseEndpoint):
     endpoint = "doctors"
 
 
-class AppointmentProfileResource(BaseChronoResource):
+class AppointmentProfileEndpoint(BaseEndpoint):
     endpoint = "appointment_profiles"

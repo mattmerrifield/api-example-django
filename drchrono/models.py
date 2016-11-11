@@ -3,6 +3,9 @@ from django.db import models
 from django.utils.timezone import now
 
 
+# These models know very little about how they are created; only a bit of data that we want to cache locally, and how
+# they're related to each other.
+
 class Patient(models.Model):
     # These values are never edited locally; only in response to information from the server
     # We cache the minimum number of fields to provide useful info to the doctor.
