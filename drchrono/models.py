@@ -52,7 +52,6 @@ class Appointment(models.Model):
         if self.checkin_time and not self.seen_time and self.status == 'Arrived':
             self.time_waiting = now() - self.checkin_time
 
-
     def save(self, *args, **kwargs):
         """
         Return the time spent waiting for patients who have checked in.
