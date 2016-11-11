@@ -1,13 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render_to_response
 from django.views import generic
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 
 from drchrono.endpoints import PatientEndpoint, AppointmentEndpoint
 from drchrono.forms import PatientWhoamiForm, AppointmentChoiceForm, PatientInfoForm
-from drchrono.models import Appointment
+from drchrono.models import Appointment, Patient
 from drchrono.serializers import AppointmentSerializer
 
 
@@ -21,18 +21,11 @@ class PatientCheckin(generic.FormView):
     template_name = 'form_patient_identify.html'
 
     def form_valid(self, form):
-        # 1) Try to retrieve the patient's appointments today from the cache by first/last/DOB/social
-        #    Missing fields here (after the form is validated) were optional to begin with
-        data = {f: form.cleaned_data[f] for f in form.cleaned_data if form.cleaned_data[f] is not None}
-        # All form fields should be patient attributes, so we can construct filters this cheezy way.
-        filters = {"patient__{}".format(f): data[f] for f in data}
-        matches = Appointment.objects.filter(**filters)
-        if matches.count():
-            # Redirect to "select appointment to check in for form
-            patient = matches.first().patient
+        try:
+            patient = form.get_patient()
             return redirect('confirm_appointment', patient=patient.id)
-        else:
-            return redirect('checkin_receptionist')  # "No appointments found, please see the receptionist
+        except Patient.DoesNotExist:
+            return redirect('checkin_receptionist')
 
 
 class PatientConfirmAppointment(generic.FormView):
@@ -44,29 +37,29 @@ class PatientConfirmAppointment(generic.FormView):
         # of all appointments for any patient. Should fix this by implementing a login flow for the user with at LEAST
         # first/last/DOB as authentication credentials; that would prevent at least bored programmers from messing with
         # it, even if that wouldn't secure it against the russians.
-        return {
-            'patient': self.kwargs['patient'],
-            'start': self.request.GET.get('start'),
-            'end': self.request.GET.get('end'),
-        }
+        old_kwargs = super(PatientConfirmAppointment, self).get_form_kwargs()
+        patient_id = self.kwargs['patient']
+        old_kwargs.update({
+            'queryset': Appointment.objects.today().filter(patient=patient_id),
+            'patient': patient_id,
+        })
+        return old_kwargs
 
     def form_valid(self, form):
         # Hit the Appointments API and confirm check-in
         appointment = form.cleaned_data['appointment']
         endpoint = AppointmentEndpoint()
-        endpoint.update(
-            id=appointment.id,
-            data={'status': 'Arrived'},
-        )
+        endpoint.update(appointment.id, {'status': 'Arrived'})
         # Re-sync the appointment info to update the status, and pick up any other updates since last time
         api_data = endpoint.fetch(id=appointment.id)
         serializer = AppointmentSerializer(data=api_data)
         if serializer.is_valid():
             serializer.save()
+            return redirect('confirm_info', patient=form.patient)
         else:
-            pass
-            # TODO: set up logging framework
+            # TODO: set up logging framework properly
             # logger.error("Error saving appointment {}".format(appointment.id))
+            return redirect('checkin_receptionist')
 
 
 class PatientConfirmInfo(generic.FormView):

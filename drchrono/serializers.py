@@ -18,11 +18,11 @@ class LimitedModelSerializer(ModelSerializer):
         Discards all data that isn't specified in self.fields, since we don't care to store it.
         """
         internal_data = {k: data[k] for k in self.fields}
-        for k, v in internal_data.copy():
+        for k in list(internal_data.keys()):
             # the API gives us naive datetimes; assume they are in the local time of this kiosk.
             # Side note: this is a pretty big design problem for the API system now, without an easy fix.
-            if isinstance(v, dt.datetime) and v.tzinfo is None:
-                dt_aware = timezone.make_aware(v, timezone.get_current_timezone())
+            if isinstance(internal_data[k], dt.datetime) and internal_data[k].tzinfo is None:
+                dt_aware = timezone.make_aware(internal_data[k], timezone.get_current_timezone())
                 internal_data[k] = dt_aware
         return internal_data
 
@@ -59,7 +59,7 @@ class AppointmentSerializer(LimitedModelSerializer):
         validated_data['doctor'] = Doctor.objects.get(id=doctor_id)
         patient_id = validated_data.pop('patient')
         validated_data['patient'] = Patient.objects.get(id=patient_id)
-        Appointment.objects.create(**validated_data)
+        return Appointment.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         """
@@ -75,3 +75,14 @@ class AppointmentSerializer(LimitedModelSerializer):
         for field_name in self.fields:
             setattr(instance, field_name, validated_data[field_name])
         instance.save()
+        return instance
+
+    def save(self, **kwargs):
+        # Dirty hack to ensure that save() will update instances if they exist
+        try:
+            id = self.validated_data['id']
+            model = self.__class__.Meta.model
+            self.instance = model.objects.get(id=id)
+        except self.Meta.model.DoesNotExist:
+            pass
+        super(AppointmentSerializer, self).save(**kwargs)

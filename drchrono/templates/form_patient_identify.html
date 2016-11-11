@@ -2,6 +2,7 @@
 {% block title %}Patient Check-in{% endblock %}
 {% block body %}
     <h1>Please Check in Here</h1>
+    <p>Enter either First/last/DOB or Social Security #</p>
     <form action="{% url 'check-in' %}" method="post">
 
     {% csrf_token %}

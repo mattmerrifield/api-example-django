@@ -1,15 +1,37 @@
 from django import forms
-from django.utils.timezone import now
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField
 
 from drchrono.models import Patient, Appointment, Doctor
 
 
 class PatientWhoamiForm(forms.Form):
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    date_of_birth = forms.DateField()
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+    date_of_birth = forms.DateField(required=False)
     social_security_number = USSocialSecurityNumberField(required=False)
+
+    def get_patient(self):
+        data = {f: self.cleaned_data[f] for f in self.cleaned_data if self.cleaned_data[f]}
+        # All form fields should be patient attributes, so we can construct filters this cheezy way.
+        filters = {"{}".format(f): data[f] for f in data}
+        return Patient.objects.get(**filters)
+
+    def is_valid(self):
+        originall_valid = super(PatientWhoamiForm, self).is_valid()
+        first_last_dob = ['first_name', 'last_name', 'date_of_birth']
+        if not(all(self.cleaned_data[k] for k in first_last_dob) or self.cleaned_data['social_security_number']):
+            self.add_error(None, 'Provide either SSN, or first/last/DOB')
+            return False
+        else:
+            try:
+                self.get_patient()
+                return originall_valid
+            except Patient.DoesNotExist:
+                self.add_error(None, "You are not yet registered, or you made a typo. \nPlease try again, or see the receptionist.")
+                return False
+            except Patient.MultipleObjectsReturned:
+                self.add_error(None, "You have more than one account registered. Please see the receptionist.")
+                return False
 
 
 class PatientInfoForm(forms.Form):
@@ -32,12 +54,7 @@ class PatientInfoForm(forms.Form):
 class AppointmentChoiceForm(forms.Form):
     appointment = forms.ModelChoiceField(queryset=Appointment.objects.all())
 
-    def __init__(self, patient=None, start=None, end=None, **kwargs):
+    def __init__(self, queryset=Appointment.objects.all(), patient='', **kwargs):
         super(AppointmentChoiceForm, self).__init__(**kwargs)
-        self.patient = patient  # Template breaks if patient=None
-        if patient:
-            self.fields['appointment'].queryset = self.fields['appointment'].queryset.filter(patient=patient)
-        if start:
-            self.fields['appointment'].queryset = self.fields['appointment'].queryset.filter(scheduled_time__gte=start)
-        if end:
-            self.fields['appointment'].queryset = self.fields['appointment'].queryset.filter(scheduled_time__lte=end)
+        self.patient = patient
+        self.fields['appointment'].queryset = Appointment.objects.today().filter(patient=self.patient)

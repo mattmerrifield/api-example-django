@@ -45,6 +45,7 @@ class Appointment(models.Model):
     An appointment to see the doctor.
     """
     # These values are never changed locally; only in response to information from the server
+    id = models.CharField(primary_key=True, max_length=255)  # Appointments are keyed with a string, for better or worse
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, editable=False, null=True)  # Breaks have a null patient field
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, editable=False)  # Must have a doctor
     status = models.CharField(max_length=255, editable=False, null=True)
