@@ -5,7 +5,7 @@ from django.views import generic
 from django.views.generic import TemplateView
 
 from drchrono.endpoints import PatientEndpoint, AppointmentEndpoint
-from drchrono.forms import PatientWhoamiForm, AppointmentChoiceForm
+from drchrono.forms import PatientWhoamiForm, AppointmentChoiceForm, PatientInfoForm
 from drchrono.models import Appointment
 from drchrono.serializers import AppointmentSerializer
 
@@ -17,7 +17,7 @@ def doctor_view(request, *args, **kwargs):
 
 class PatientCheckin(generic.FormView):
     form_class = PatientWhoamiForm
-    template_name = 'form_identify_patient.html'
+    template_name = 'form_patient_identify.html'
 
     def form_valid(self, form):
         # 1) Try to retrieve the patient's appointments today from the cache by first/last/DOB/social
@@ -29,36 +29,25 @@ class PatientCheckin(generic.FormView):
         if matches.count():
             # Redirect to "select appointment to check in for form
             patient = matches.first().patient
-            return redirect('confirm_info', patient=patient.id)
+            return redirect('confirm_appointment', patient=patient.id)
         else:
             return redirect('checkin_failed')  # "No appointments found, please see the receptionist
 
 
-class PatientConfirmInfo(generic.FormView):
-    """
-    Use the API to update demographic info about the patient
-    """
-    form = PatientInfoForm
-    def get_form_kwargs(self):
-        api_data = PatientEndpoint().fetch(id=self.request.GET['id'])
-        return {'initial': api_data}
-
-    def form_valid(self, form):
-        pass
-
-
 class PatientConfirmAppointment(generic.FormView):
     form_class = AppointmentChoiceForm
+    template_name = 'form_appointment_select.html'
 
     def get_form_kwargs(self):
         # Note: this is currently a security hole: by tampering with the GET parameter, a bad actor can retrieve a list
         # of all appointments for any patient. Should fix this by implementing a login flow for the user with at LEAST
         # first/last/DOB as authentication credentials; that would prevent at least bored programmers from messing with
         # it, even if that wouldn't secure it against the russians.
-        return {'patient': self.request.GET.get('patient'),
-                'start': self.request.GET.get('start'),
-                'end': self.request.GET.get('end'),
-                }
+        return {
+            'patient': self.request.GET.get('patient'),
+            'start': self.request.GET.get('start'),
+            'end': self.request.GET.get('end'),
+        }
 
     def form_valid(self, form):
         # Hit the Appointments API and confirm check-in
@@ -79,10 +68,22 @@ class PatientConfirmAppointment(generic.FormView):
             # logger.error("Error saving appointment {}".format(appointment.id))
 
 
+class PatientConfirmInfo(generic.FormView):
+    """
+    Use the API to update demographic info about the patient
+    """
+    form = PatientInfoForm
+
+    def get_form_kwargs(self):
+        api_data = PatientEndpoint().fetch(id=self.request.GET['id'])
+        return {'initial': api_data}
+
+    def form_valid(self, form):
+        pass
+
 
 class AppointmentConfirmed(generic.TemplateView):
     template_name = 'checkin_success.html'
-
 
 
 class DoctorWelcome(TemplateView):
@@ -90,4 +91,4 @@ class DoctorWelcome(TemplateView):
 
 
 class CheckinFailed(TemplateView):
-    template_name = 'checkin_failure.html'
+    template_name = 'checkin_receptionist.html'
