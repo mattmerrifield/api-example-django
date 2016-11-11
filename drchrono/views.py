@@ -2,21 +2,18 @@ from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.views import generic
 
+from drchrono.endpoints import PatientEndpoint
+
 
 @login_required()
 def doctor_view(request, *args, **kwargs):
-    response = requests.get('https://drchrono.com/api/users/current', headers={
-    })
-    response.raise_for_status()
-    data = response.json()
-
-    # You can store this in your database along with the tokens
-    username = data['username']
     return HttpResponse('Doctor view contents!', status=200)
 
 
 class PatientCheckin(generic.FormView):
-    def form_valid(self):
+    def form_valid(self, form):
+        # 1) Try to retrieve the patient id from the cache by first/last/DOB/social
+        # 2) 
 
         PatientResource.get()
 

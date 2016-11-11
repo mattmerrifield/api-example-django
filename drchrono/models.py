@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
+from localflavor.us.models import USSocialSecurityNumberField
 
 
 # These models know very little about how they are created; only a bit of data that we want to cache locally, and how
@@ -12,6 +13,7 @@ class Patient(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     date_of_birth = models.DateField()
+    social_security_number = USSocialSecurityNumberField()
 
     # We store the last time we did a refresh from the API, so we can decide when to do another one.
     # refresh_time = models.DateTimeField()
