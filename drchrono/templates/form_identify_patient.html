@@ -2,9 +2,10 @@
 {% block title %}Patient Check-in{% endblock %}
 {% block body %}
     <h1>Please Check in Here</h1>
-    <form action="/form/" method="post">
+    <form action="/checkin/" method="post">
+
     {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit" />
+        <table>{{ form.as_table }}</table>
+    <tr><td><input type="submit" value="Continue" /></td></tr>
 </form>
 {% endblock %}

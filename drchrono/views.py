@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
+from django.shortcuts import redirect
 from django.views import generic
 from django.views.generic import TemplateView
 
@@ -27,10 +28,10 @@ class PatientCheckin(generic.FormView):
         matches = Appointment.objects.filter(**filters)
         if matches.count():
             # Redirect to "select appointment to check in for form
-            pass
+            patient = matches.first().patient
+            return redirect('confirm_info', patient=patient.id)
         else:
-            pass
-            # Redirect to "No appointments found, please see the receptionist
+            return redirect('checkin_failed')  # "No appointments found, please see the receptionist
 
 
 class PatientConfirmInfo(generic.FormView):
@@ -86,3 +87,6 @@ class AppointmentConfirmed(generic.TemplateView):
 class DoctorWelcome(TemplateView):
     template_name = 'doctor_welcome.html'
 
+
+class CheckinFailed(TemplateView):
+    template_name = 'checkin_failure.html'
