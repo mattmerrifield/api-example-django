@@ -55,7 +55,7 @@ class Appointment(models.Model):
     # These values you can edit locally, and are not transmitted to the server.
     checkin_time = models.DateTimeField(null=True)
     seen_time = models.DateTimeField(null=True)
-    time_waiting = models.DurationField(null=True)
+    time_waiting = models.IntegerField(null=True)
 
     # custom manager with a today() method
     objects = AppointmentManager()
@@ -97,7 +97,8 @@ class Appointment(models.Model):
         """
         # For simplicity, people only get this metric after they're seen.
         if self.checkin_time and self.seen_time:
-            self.time_waiting = self.seen_time - self.checkin_time
+            duration_waiting = self.seen_time - self.checkin_time
+            self.time_waiting = duration_waiting.total_seconds()/60
         else:
             self.time_waiting = None
         super(Appointment, self).save(*args, **kwargs)

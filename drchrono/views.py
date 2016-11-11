@@ -5,6 +5,7 @@ from django.utils.timezone import now
 from django.views import generic
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
+from django.db import models
 
 from drchrono.endpoints import PatientEndpoint, AppointmentEndpoint
 from drchrono.forms import PatientWhoamiForm, AppointmentChoiceForm, PatientInfoForm
@@ -89,6 +90,10 @@ class DoctorToday(ListView):
     def get_context_data(self, **kwargs):
         kwargs = super(DoctorToday, self).get_context_data(**kwargs)
         kwargs['current_time'] = now()
+        wait_time = Appointment.objects.filter(
+            time_waiting__isnull=False
+        ).aggregate(models.Avg('time_waiting'))['time_waiting__avg']
+        kwargs['wait_time'] = wait_time
         return kwargs
 
 
