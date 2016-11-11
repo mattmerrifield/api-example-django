@@ -2,21 +2,38 @@ from rest_framework.serializers import ModelSerializer
 from drchrono.models import Doctor, Patient, Appointment
 
 
-class PatientSerialier(ModelSerializer):
+class LimitedModelSerializer(ModelSerializer):
+
+    def to_representation(self, instance):
+        """
+        raises NotImplemented. This app does NOT push models outbound; any editing required is done directly through
+        the API.
+        """
+        raise NotImplemented("This is a one-way serializer; API -> Model only")
+
+    def to_internal_value(self, data):
+        """
+        Discards all data that isn't specified in self.fields, since we don't care to store it.
+        """
+        internal_data = {k: data[k] for k in self.fields}
+        return internal_data
+
+
+class PatientSerialier(LimitedModelSerializer):
     class Meta:
         model = Patient
         fields = ('id', 'first_name', 'last_name', 'date_of_birth')
         depth = 1
 
 
-class DoctorSerializer(ModelSerializer):
+class DoctorSerializer(LimitedModelSerializer):
     class Meta:
         model = Doctor
         fields = ('id', 'first_name', 'last_name')
         depth = 1
 
 
-class AppointmentSerializer(ModelSerializer):
+class AppointmentSerializer(LimitedModelSerializer):
     class Meta:
         model = Appointment
         fields = ('id', 'patient', 'doctor', 'status', 'scheduled_time', 'duration')
