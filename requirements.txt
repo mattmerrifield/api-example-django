@@ -11,4 +11,4 @@ mysql-python
 django-localflavor
 ipython
 django-extensions
-social_auth
+djangorestframework

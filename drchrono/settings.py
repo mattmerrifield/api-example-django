@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'localflavor',
     'django_extensions',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (

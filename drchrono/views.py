@@ -1,8 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
-from django.views.generic import TemplateView
-
-
+from django.views import generic
 
 
 @login_required()
@@ -17,8 +15,10 @@ def doctor_view(request, *args, **kwargs):
     return HttpResponse('Doctor view contents!', status=200)
 
 
-def checkin_view(request, *args, **kwargs):
-    return HttpResponse("Patient Check-in")
+class PatientCheckin(generic.FormView):
+    def form_valid(self):
+
+        PatientResource.get()
 
 
 class DoctorWelcome(TemplateView):

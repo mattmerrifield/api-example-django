@@ -189,5 +189,9 @@ class AppointmentResource(BaseChronoResource):
         return super(AppointmentResource, self).list(params, **kwargs)
 
 
+class DoctorResource(BaseChronoResource):
+    endpoint = "doctors"
+
+
 class AppointmentProfileResource(BaseChronoResource):
     endpoint = "appointment_profiles"

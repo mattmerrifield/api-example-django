@@ -1,3 +1,7 @@
 from django import forms
 
-# forms go here
+
+class CheckInForm(forms.Form):
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    date_of_birth = forms.DateField()
