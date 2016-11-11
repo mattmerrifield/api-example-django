@@ -16,7 +16,7 @@ def doctor_view(request, *args, **kwargs):
 
 class PatientCheckin(generic.FormView):
     form_class = PatientWhoamiForm
-    template_name = 'patient_identify.html'
+    template_name = 'form_identify_patient.html'
 
     def form_valid(self, form):
         # 1) Try to retrieve the patient's appointments today from the cache by first/last/DOB/social
@@ -31,6 +31,19 @@ class PatientCheckin(generic.FormView):
         else:
             pass
             # Redirect to "No appointments found, please see the receptionist
+
+
+class PatientConfirmInfo(generic.FormView):
+    """
+    Use the API to update demographic info about the patient
+    """
+    def get_form_kwargs(self):
+        api_data = PatientEndpoint().fetch(id=self.request.GET['id'])
+        return {'initial': api_data}
+
+    def form_valid(self, form):
+        pass
+
 
 class PatientConfirmAppointment(generic.FormView):
     form_class = AppointmentChoiceForm
@@ -64,20 +77,9 @@ class PatientConfirmAppointment(generic.FormView):
             # logger.error("Error saving appointment {}".format(appointment.id))
 
 
-class PatientConfirmInfo(generic.FormView):
-    """
-    Use the API to update demographic info about the patient
-    """
-    def get_form_kwargs(self):
-        api_data = PatientEndpoint().fetch(id=self.request.GET['id'])
-        return {'initial': api_data}
-
-    def form_valid(self, form):
-        pass
-
 
 class AppointmentConfirmed(generic.TemplateView):
-    template_name = 'appointment_confirmed.html'
+    template_name = 'checkin_success.html'
 
 
 
