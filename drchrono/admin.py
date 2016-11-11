@@ -4,11 +4,11 @@ from drchrono.models import Patient, Appointment, Doctor
 
 
 class PatientAdmin(admin.ModelAdmin):
-    pass  # bone stock for now
+    list_display = ['id', 'first_name', 'last_name', 'date_of_birth']
 
 
 class DoctorAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'first_name', 'last_name']
 
 
 class AppointmentAdmin(admin.ModelAdmin):
