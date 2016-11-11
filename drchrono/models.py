@@ -25,6 +25,9 @@ class Doctor(models.Model):
     first_name = models.CharField(max_length=255, editable=False)
     last_name = models.CharField(max_length=255, editable=False)
 
+    def __str__(self):
+        return "Dr. {self.first_name} {self.last_name}".format(self=self)
+
 
 class Appointment(models.Model):
     """
@@ -40,3 +43,28 @@ class Appointment(models.Model):
     # These values you can edit locally, and are not transmitted to the server.
     checkin_time = models.DateTimeField(null=True)
     seen_time = models.DateTimeField(null=True)
+    time_waiting = models.DurationField(null=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Appointment, self).__init__(*args, **kwargs)
+        # Set the time_waiting on initialization for people who are sitting in the office, so we can view their
+        # time waiting live. This will not be saved; .save() overwrites it with its own logic
+        if self.checkin_time and not self.seen_time and self.status == 'Arrived':
+            self.time_waiting = now() - self.checkin_time
+
+
+    def save(self, *args, **kwargs):
+        """
+        Return the time spent waiting for patients who have checked in.
+
+        Return None for patients who haven't checked in.
+        :return:
+        """
+        # For simplicity, people only get this metric after they're seen.
+        if self.checkin_time and self.seen_time:
+            self.time_waiting = self.seen_time - self.checkin_time
+        else:
+            self.time_waiting = None
+        super(Appointment, self).save(*args, **kwargs)
+
+
