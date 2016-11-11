@@ -23,24 +23,22 @@ ERROR_CODES = {
 
 class BaseEndpoint(object):
     """
-    A python wrapper for the basic rules of the drchrono API.
+    A python wrapper for the basic rules of the drchrono API endpoints.
 
-    Provides consistent, pythonic usage and return values from the API,
+    Provides consistent, pythonic usage and return values from the API.
 
     Abstracts away:
      - base URL,
      - details of authentication
+     - list iteration
+     - response codes
 
-    All responses will be JSON content. Generally input may use the application/json, application/x-www-form-urlencoded
-    or form/multipart content types
+    All return values will be dicts, or lists of dicts.
 
-    Requests should make sure not to send Accept: test/html in the header, as the API only supports JSON responses.
-
-    Subclasses should implement a specific endpoint, abstracting away unpleasant details of REST communication (like
-    naming and iterating over resources that allow it)
+    Subclasses should implement a specific endpoint.
     """
     BASE_URL = 'https://drchrono.com/api/'
-    endpoint = None
+    endpoint = ''
 
     def __init__(self):
         """
@@ -175,12 +173,12 @@ class PatientEndpoint(BaseEndpoint):
 class AppointmentEndpoint(BaseEndpoint):
     endpoint = "appointments"
 
-    # Special parameter requirements for a given resource should be explicity called out
+    # Special parameter requirements for a given resource should be explicitly called out
     def list(self, params=None, date=None, start=None, end=None, **kwargs):
         """
         List appointments on a given date, or between two dates
         """
-        # Just parameter parsing/checking
+        # Just parameter parsing & checking
         params = params or {}
         if start and end:
             date_range = "{}/{}".format(start, end)
