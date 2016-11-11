@@ -35,5 +35,6 @@
         <li>No appointments today.</li>
     {% endfor %}
     </table>
-    <p>Average Wait time: {{ wait_time }}</p>
+    <p>Average Wait time: {{ wait_time }} minutes</p>
+    <a class="btn btn-default" href="{% url 'sync' %}">Update From Web</a>
 {% endblock %}

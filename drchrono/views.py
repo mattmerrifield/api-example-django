@@ -11,6 +11,7 @@ from drchrono.endpoints import PatientEndpoint, AppointmentEndpoint
 from drchrono.forms import PatientWhoamiForm, AppointmentChoiceForm, PatientInfoForm
 from drchrono.models import Appointment, Patient
 from drchrono.serializers import AppointmentSerializer
+from drchrono.sync import sync_all
 
 
 @login_required()
@@ -57,7 +58,8 @@ class PatientConfirmAppointment(generic.FormView):
         if serializer.is_valid():
             serializer.save()  # Save updates from API
             serializer.instance.check_in()  # Set checkin time and status
-            return redirect('confirm_info', patient=form.patient)
+            # Redirect for the next visitor to check in
+            return redirect('checkin_success', patient=form.patient)
         else:
             # TODO: set up logging framework properly
             # logger.error("Error saving appointment {}".format(appointment.id))
@@ -82,6 +84,11 @@ class PatientConfirmInfo(generic.FormView):
 class AppointmentConfirmed(generic.TemplateView):
     template_name = 'checkin_success.html'
 
+
+def sync_info(request):
+    "Sync everything, then redirect back to the today screen"
+    sync_all()
+    return redirect('today')
 
 class DoctorToday(ListView):
     template_name = 'doctor_today.html'
