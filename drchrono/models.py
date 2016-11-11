@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 from localflavor.us.models import USSocialSecurityNumberField
+import datetime as dt
 
 
 # These models know very little about how they are created; only a bit of data that we want to cache locally, and how
@@ -29,6 +30,16 @@ class Doctor(models.Model):
         return "Dr. {self.first_name} {self.last_name}".format(self=self)
 
 
+class AppointmentManager(models.Manager):
+    def today(self):
+        midnight = now().replace(hour=0, minute=0, second=0, microsecond=0)
+        tomorrow = midnight + dt.timedelta(days=1)
+        return self.filter(
+            scheduled_time__gte=midnight,
+            scheduled_time__lte=tomorrow,
+        ).order_by('scheduled_time')
+
+
 class Appointment(models.Model):
     """
     An appointment to see the doctor.
@@ -44,6 +55,9 @@ class Appointment(models.Model):
     checkin_time = models.DateTimeField(null=True)
     seen_time = models.DateTimeField(null=True)
     time_waiting = models.DurationField(null=True)
+
+    # custom manager with a today() method
+    objects = AppointmentManager()
 
     def __init__(self, *args, **kwargs):
         super(Appointment, self).__init__(*args, **kwargs)

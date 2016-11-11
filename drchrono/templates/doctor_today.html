@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Welcome to Chrono Kiosk!{% endblock %}
+{% block extra_header %}<meta http-equiv="refresh" content="5" >{% endblock %}
+{% block body %}
+    <p>Welcome {{ request.user }}!</p>
+    <p>Here are your appointments for today:</p>
+    <table>
+    <tr>
+        <th>Scheduled Time</th>
+        <th>Duration</th>
+        <th>Status</th>
+        <th>Patient</th>
+        <tb>DOB</tb>
+    </tr>
+    {% for appointment in object_list %}
+        <tr><td>{{ appointment.scheduled_time }}</td>
+            <td>{{ appointment.duration }} minutes</td>
+            <td>{{ appointment.status }}</td>
+            <td>{{ appointment.patient }}</td>
+            <td>{{ appointment.patient.date_of_birth }}</td>
+        </tr>
+    {% empty %}
+        <li>No appointments today.</li>
+    {% endfor %}
+    </table>
+{% endblock %}

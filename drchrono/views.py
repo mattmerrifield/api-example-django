@@ -3,6 +3,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import redirect
 from django.views import generic
 from django.views.generic import TemplateView
+from django.views.generic.list import ListView
 
 from drchrono.endpoints import PatientEndpoint, AppointmentEndpoint
 from drchrono.forms import PatientWhoamiForm, AppointmentChoiceForm, PatientInfoForm
@@ -86,8 +87,10 @@ class AppointmentConfirmed(generic.TemplateView):
     template_name = 'checkin_success.html'
 
 
-class DoctorWelcome(TemplateView):
-    template_name = 'doctor_welcome.html'
+class DoctorWelcome(ListView):
+    template_name = 'doctor_today.html'
+    queryset = Appointment.objects.today()
+
 
 
 class CheckinFailed(TemplateView):
