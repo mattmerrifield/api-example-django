@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^check-in/(?P<patient>\d+)/appointments/$', views.PatientConfirmAppointment.as_view(), name='confirm_appointment'),
     url(r'^check-in/confirmed$', views.AppointmentConfirmed.as_view(), name='checkin_success'),
     url(r'^check-in/receptionist', views.CheckinFailed.as_view(), name='checkin_receptionist'),
-    url(r'^today/$', login_required(views.DoctorWelcome.as_view()), name='welcome'),
+    url(r'^today/$', login_required(views.DoctorToday.as_view()), name='today'),
+    url(r'^appointment/(?P<appointment>\d+)/start', views.StartConsult.as_view(), name='start_consult'),
+    url(r'^appointment/(?P<appointment>\d+)/finish', views.FinishConsult.as_view(), name='finish_consult'),
     url(r'', include('social.apps.django_app.urls', namespace='social')),
 ]

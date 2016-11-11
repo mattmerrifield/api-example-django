@@ -10,7 +10,7 @@
         <th>Duration</th>
         <th>Status</th>
         <th>Patient</th>
-        <tb>DOB</tb>
+        <th>DOB</th>
     </tr>
     {% for appointment in object_list %}
         <tr><td>{{ appointment.scheduled_time }}</td>
@@ -18,6 +18,8 @@
             <td>{{ appointment.status }}</td>
             <td>{{ appointment.patient }}</td>
             <td>{{ appointment.patient.date_of_birth }}</td>
+            <td><a href="{% url 'start_consult' appointment=appointment.id %}">Start Consult</a></td>
+            <td><a href="{% url 'finish_consult' appointment=appointment.id %}">Finish Consult</a></td>
         </tr>
     {% empty %}
         <li>No appointments today.</li>

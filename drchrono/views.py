@@ -66,10 +66,11 @@ class PatientConfirmInfo(generic.FormView):
     """
     Use the API to update demographic info about the patient
     """
-    form = PatientInfoForm
+    template_name = 'form_patient_info.html'
+    form_class = PatientInfoForm
 
     def get_form_kwargs(self):
-        api_data = PatientEndpoint().fetch(id=self.request.GET['id'])
+        api_data = PatientEndpoint().fetch(id=self.kwargs['patient'])
         return {'initial': api_data}
 
     def form_valid(self, form):
@@ -80,11 +81,40 @@ class AppointmentConfirmed(generic.TemplateView):
     template_name = 'checkin_success.html'
 
 
-class DoctorWelcome(ListView):
+class DoctorToday(ListView):
     template_name = 'doctor_today.html'
     queryset = Appointment.objects.today()
 
 
-
 class CheckinFailed(TemplateView):
     template_name = 'checkin_receptionist.html'
+
+
+class StartConsult(TemplateView):
+    template_name = 'start_consult.html'
+
+    def get(self, request, *args, **kwargs):
+        response = super(StartConsult, self).get(request, *args, **kwargs)
+        id = self.kwargs['appointment']
+        status = 'In Session'
+
+        # Update both API and local cache
+        endpoint = AppointmentEndpoint()
+        endpoint.update(id, {'status': status})
+        Appointment.objects.filter(id=id).update(status=status)
+        return response
+
+
+class FinishConsult(TemplateView):
+    template_name = 'end_consult.html'
+
+    def get(self, request, *args, **kwargs):
+        response = super(FinishConsult, self).get(request, *args, **kwargs)
+        id = self.kwargs['appointment']
+        status = 'Complete'
+
+        # Update both API and local cache
+        endpoint = AppointmentEndpoint()
+        endpoint.update(id, {'status': status})
+        Appointment.objects.filter(id=id).update(status=status)
+        return response
