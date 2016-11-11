@@ -1,4 +1,6 @@
 from django.test import TestCase
+from django.utils.timezone import now
+
 from drchrono.endpoints import AppointmentEndpoint, PatientEndpoint, DoctorEndpoint
 from pprint import pprint
 
@@ -81,15 +83,29 @@ class AppointmentEndpointTest(PatientEndpointTest):
     Run through the basic functionality of an API endpoint
     """
     fixtures = ['api_oauth_test.json']
-    endpoint_class = PatientEndpoint
-    single_object_id = 61971496
-    partial_update_field = {'home_phone': '(516) 555-8342'}
+    endpoint_class = AppointmentEndpoint
+    single_object_id = 40433778
+    partial_update_field = {'status': 'Complete'}
+    start = '2016-11-1'
+    end = '2016-11-18'
     create_object = {
-        'first_name': 'Zaphod',
-        'last_name': 'Beeblebrox',
-        'gender': 'Male',
-        'doctor': '116494'
+        'doctor': 116494,
+        'duration': 15,
+        'exam_room': 1,
+        'office': 123880,
+        'patient': 61971486,
+        'scheduled_time': '2016-11-19T12:00'
     }
+
+    def test_list(self):
+        """
+        Make sure that the list() method returns a bunch of patients from our test account
+        :return:
+        """
+        endpoint = self.endpoint_class()
+        data = [x for x in endpoint.list(start=self.start, end=self.end)]
+        self.assertGreater(len(data), 0)
+        pprint(data)
 
     def test_create_delete(self):
         """
@@ -99,12 +115,11 @@ class AppointmentEndpointTest(PatientEndpointTest):
         new_object = endpoint.create(json=self.create_object)
         pprint(new_object)
         self.assertIsNotNone(new_object['id'])  # Object should have gotten a new id
-        # The DELETE verb on the Patients endpoint results in "APIException: Authorization failed." contrary to
-        # expectation
-        endpoint.delete(new_object['id'])       # Should be able to delete the object now
+        # Can't actually delete appointments either.
+        # endpoint.delete(new_object['id'])       # Should be able to delete the object now
 
 
-class DoctorEndpointTest(EndpointTest):
+class DoctorEndpointTest(PatientEndpointTest):
     """
     Run through the basic functionality of an API endpoint
     """
