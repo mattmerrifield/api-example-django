@@ -72,6 +72,21 @@ class Appointment(models.Model):
         return "{self.scheduled_time} {patient} with {self.doctor} for {self.duration} minutes".format(
             self=self, patient=patient)
 
+    def check_in(self):
+        self.status = 'Waiting'
+        self.seen_time = None
+        self.save()
+
+    def start_consult(self):
+        self.status = 'In Session'
+        self.seen_time = now()
+        self.save()
+
+    def finish_consut(self):
+        self.status = 'Complete'
+        self.save()
+
+
     def save(self, *args, **kwargs):
         """
         Return the time spent waiting for patients who have checked in.

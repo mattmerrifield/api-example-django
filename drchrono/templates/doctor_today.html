@@ -8,6 +8,7 @@
         <th>Scheduled Time</th>
         <th>Duration</th>
         <th>Status</th>
+        <th>Time Waiting</th>
         <th>Patient</th>
         <th>DOB</th>
         <th>Action</th>
@@ -16,6 +17,7 @@
         <tr><td>{{ appointment.scheduled_time }}</td>
             <td>{{ appointment.duration }} minutes</td>
             <td>{{ appointment.status }}</td>
+            <td>{{ appointment.time_waiting }}</td>
             <td>{{ appointment.patient }}</td>
             <td>{{ appointment.patient.date_of_birth }}</td>
             <td>
